@@ -7,9 +7,12 @@ Jeu Roche Papier Ciseaux avec interface graphique Arcade.
 import arcade
 import random
 from enum import Enum
+from Game_state import GameState
+from Attack_animation import AttackAnimation
+from Attack_animation import AttackType
 
-LARGEUR_ECRAN = 600
-HAUTEUR_ECRAN = 400
+LARGEUR_ECRAN = 1200
+HAUTEUR_ECRAN = 800
 TITRE_ECRAN = "Roche Papier Ciseaux"
 
 
@@ -29,10 +32,8 @@ class Choix(Enum):
 
 # Variables globales de l'état du jeu
 choix_joueur = ""  # Le choix actuel du joueur (roche, papier ou ciseaux)
-
 choix_ordinateur = ""  # Le choix aléatoire de l'ordinateur
-
-resultat_jeu = "Choisissez roche, papier ou ciseaux (R/P/S)"  # Message affichant le résultat de la dernière manche
+resultat_jeu = "Choisissez roche, papier ou ciseaux (R/P/C)"  # Message affichant le résultat de la dernière manche
 
 
 # Classe principale du jeu
@@ -49,6 +50,15 @@ class MyGame(arcade.Window):
         arcade.set_background_color(arcade.color.WHITE)
         self.victoires_joueur = 0  # Nombre de victoires remportées par le joueur.
         self.victoires_ordinateur = 0  # Nombre de victoires remportées par l'ordinateur.
+        self.game_state = GameState.NOT_STARTED
+        self.player_score = 0
+        self.computer_score = 0
+        self.player_attack_type = None
+        self.computer_attack_type = None
+        self.attack_selected = False
+
+        self.roche = AttackAnimation(AttackType.ROCHE)
+        self.papier = AttackAnimation(AttackType.PAPIER)
 
     def on_draw(self):
         """
@@ -116,13 +126,14 @@ class MyGame(arcade.Window):
             anchor_x="center",
         )
 
+
     def on_key_press(self, key, modifiers):
         """
         Traite les entrées clavier du joueur.
         """
         global choix_joueur, choix_ordinateur, resultat_jeu
 
-        # Enregistrement du choix du joueur selon la clé pressée
+        # Changement d'état
         if key == arcade.key.R:
             choix_joueur = "roche"
         elif key == arcade.key.P:
@@ -159,7 +170,6 @@ class MyGame(arcade.Window):
             return f"{ordinateur.capitalize()} bat {joueur} ! Vous perdez."
 
 
-# Fonction principale
 def main():
     """
     Fonction principale qui initialise et lance le jeu.
