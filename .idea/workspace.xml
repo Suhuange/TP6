@@ -5,12 +5,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c511733a-d44b-4ec9-b100-346a89dc31c2" name="Changes" comment="Commit">
-      <change afterPath="$PROJECT_DIR$/exercice.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sprites/IMG_0413.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sprites/IMG_0414.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sprites/IMG_0415.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sprites/IMG_0416.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sprites/IMG_0417.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sprites/IMG_0418.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sprites/IMG_0419.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sprites/IMG_0420.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/game_state.py" beforeDir="false" afterPath="$PROJECT_DIR$/game_state.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/roche,papier,ciseaux.py" beforeDir="false" afterPath="$PROJECT_DIR$/roche,papier,ciseaux.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/roche,papier,ciseaux.py" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -26,6 +30,7 @@
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="UPDATE_TYPE" value="REBASE" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
   &quot;lastFilter&quot;: {
@@ -39,6 +44,9 @@
     &quot;accountId&quot;: &quot;1f4ceaae-383a-4846-824c-3f2a77754e61&quot;
   }
 }</component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 5
 }</component>
@@ -52,14 +60,21 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "Python.Attack_animation.executor": "Run",
     "Python.attack_animation.executor": "Run",
     "Python.exercice.executor": "Run",
     "Python.main.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "git-widget-placeholder": "master",
-    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
+    "settings.editor.selected.configurable": "preferences.fileTypes"
   }
 }]]></component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\suhuanger\PycharmProjects\TP6\sprites" />
+      <recent name="C:\Users\suhuanger\PycharmProjects\TP6" />
+    </key>
+  </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -84,8 +99,38 @@
       <option name="project" value="LOCAL" />
       <updated>1770408658414</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Commit">
+      <option name="closed" value="true" />
+      <created>1771014061117</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1771014061117</updated>
+    </task>
+    <task id="LOCAL-00003" summary="Commit">
+      <option name="closed" value="true" />
+      <created>1771271597016</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1771271597016</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
+  </component>
+  <component name="UnknownFeatures">
+    <option featureType="com.intellij.fileTypeFactory" implementationName="*.7z" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Commit" />
