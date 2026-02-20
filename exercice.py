@@ -59,12 +59,34 @@ class MyGame(arcade.Window):
 
         self.roche = AttackAnimation(AttackType.ROCHE)
         self.papier = AttackAnimation(AttackType.PAPIER)
+        self.ciseaux = AttackAnimation(AttackType.CISEAUX)
+        self.roche1 = AttackAnimation(AttackType.ROCHE,)
+        self.papier1 = AttackAnimation(AttackType.PAPIER)
+        self.ciseaux1 = AttackAnimation(AttackType.CISEAUX)
+
+        self.roche.position = 200, 200
+        self.papier.position = 300, 200
+        self.ciseaux.position = 400, 200
+        self.roche1.position = 800, 200
+        self.papier1.position = 900, 200
+        self.ciseaux1.position = 1000, 200
+
+        self.attacks_list = arcade.SpriteList()
+        self.attacks_list.append(self.roche)
+        self.attacks_list.append(self.papier)
+        self.attacks_list.append(self.ciseaux)
+        self.attacks_list1 = arcade.SpriteList()
+        self.attacks_list1.append(self.roche1)
+        self.attacks_list1.append(self.papier1)
+        self.attacks_list1.append(self.ciseaux1)
 
     def on_draw(self):
         """
         Dessine tous les éléments de l'interface graphique.
         """
         self.clear()
+        self.attacks_list.draw()
+        self.attacks_list1.draw()
 
         # Titre du jeu
         arcade.draw_text(
@@ -126,6 +148,9 @@ class MyGame(arcade.Window):
             anchor_x="center",
         )
 
+    def on_update(self, delta_time: float) -> bool | None:
+        self.roche.on_update(delta_time)
+        self.roche1.on_update(delta_time)
 
     def on_key_press(self, key, modifiers):
         """

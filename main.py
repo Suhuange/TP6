@@ -1,4 +1,6 @@
 import arcade
+from Attack_animation import AttackAnimation
+from Attack_animation import AttackType
 
 
 class MyGame(arcade.Window):
@@ -6,21 +8,16 @@ class MyGame(arcade.Window):
         super().__init__(width, height, title)
         self.set_location(400, 200)
         arcade.set_background_color(arcade.color.BLACK)
-        self.roche = arcade.Sprite("sprites/IMG_0419.png", scale=1, center_x=200, center_y=200)
-        self.roche.position = 100, 200
-        self.papier = arcade.Sprite("sprites/IMG_0417.png", scale=1, center_x=200, center_y=200)
-        self.papier.position = 300, 200
-        self.ciseaux = arcade.Sprite("sprites/IMG_0415.png", scale=1, center_x=200, center_y=200)
-        self.ciseaux.position = 500, 200
-
-        self.attacks_list = arcade.SpriteList()
-        self.attacks_list.append(self.roche)
-        self.attacks_list.append(self.papier)
-        self.attacks_list.append(self.ciseaux)
+        self.roche = AttackAnimation(AttackType.ROCHE)
+        self.roche.position = 600, 400
+        self.animation_update_time = 1.0 / AttackAnimation.ANIMATION_SPEED
+        self.time_since_last_swap = 0.0
 
     def on_draw(self):
-        self.clear()
-        self.attacks_list.draw()
+        self.roche.draw()
+
+    def on_update(self, delta_time):
+        self.roche.on_update()
 
 
 MyGame(1200, 800, 'Window')
