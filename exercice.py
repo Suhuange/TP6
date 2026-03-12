@@ -33,7 +33,7 @@ class Choix(Enum):
 # Variables globales de l'état du jeu
 choix_joueur = ""  # Le choix actuel du joueur (roche, papier ou ciseaux)
 choix_ordinateur = ""  # Le choix aléatoire de l'ordinateur
-resultat_jeu = "Choisissez roche, papier ou ciseaux (R/P/C)"  # Message affichant le résultat de la dernière manche
+resultat_jeu = "Choisissez roche, papier ou ciseaux"  # Message affichant le résultat de la dernière manche
 
 
 # Classe principale du jeu
@@ -181,8 +181,6 @@ class MyGame(arcade.Window):
         self.ciseaux.on_update(delta_time)
         self.ciseaux1.on_update(delta_time)
 
-
-
     def on_mouse_press(self, x, y, button, modifiers):
         """Gère le choix d'attaque du joueur avec la souris."""
 
@@ -190,12 +188,15 @@ class MyGame(arcade.Window):
 
         if self.game_state != GameState.ROUND_ACTIVE:
             return
+
         if self.roche.collides_with_point((200, 200)):
             choix_joueur = "roche"
         elif self.papier.collides_with_point((300, 200)):
             choix_joueur = "papier"
         elif self.ciseaux.collides_with_point((400, 200)):
             choix_joueur = "ciseaux"
+        else:
+            return
 
         # Sélection aléatoire du choix de l'ordinateur parmi l'énumération
         choix_ordinateur = random.choice([c.value for c in Choix])
@@ -203,31 +204,37 @@ class MyGame(arcade.Window):
         # Détermination et affichage du résultat
         resultat_jeu = self.determiner_gagnant(choix_joueur, choix_ordinateur)
 
+        # Manche terminée
+        if self.victoires_joueur >= 3 or self.victoires_ordinateur >= 3:
+            self.game_state = GameState.GAME_OVER
+        else:
+            self.game_state = GameState.ROUND_DONE
+
     def on_key_press(self, key, modifiers):
         """Gère les transitions d'état avec le clavier."""
+        global choix_joueur, choix_ordinateur, resultat_jeu
+
         if key == arcade.key.SPACE:
+
             if self.game_state == GameState.NOT_STARTED:
                 self.game_state = GameState.ROUND_ACTIVE
+
             elif self.game_state == GameState.ROUND_DONE:
                 self.game_state = GameState.ROUND_ACTIVE
+
             elif self.game_state == GameState.GAME_OVER:
-                self.player_score = 0
-                self.computer_score = 0
+                # réinitialiser les valeurs et recommencer une nouvelle partie
+                self.victoires_joueur = 0
+                self.victoires_ordinateur = 0
+                choix_joueur = ""
+                choix_ordinateur = ""
+                resultat_jeu = ""
                 self.game_state = GameState.ROUND_ACTIVE
 
     def determiner_gagnant(self, joueur, ordinateur):
         """
         Détermine le gagnant de la manche et met à jour les scores.
         """
-
-        if self.game_state == GameState.ROUND_ACTIVE and self.attack_selected:
-            self.computer_attack_type = AttackType(random.randint(0, 2))
-            self.determiner_gagnant(choix_joueur,choix_ordinateur)
-            self.attack_selected = False
-            self.game_state = GameState.ROUND_DONE
-
-            if self.player_score == 3 or self.computer_score == 3:
-                self.game_state = GameState.GAME_OVER
 
         # Cas d'égalité
         if joueur == ordinateur:
@@ -237,6 +244,7 @@ class MyGame(arcade.Window):
         elif (joueur == "roche" and ordinateur == "ciseaux") or \
                 (joueur == "papier" and ordinateur == "roche") or \
                 (joueur == "ciseaux" and ordinateur == "papier"):
+
             self.victoires_joueur += 1
             return f"{joueur.capitalize()} bat {ordinateur} ! Vous gagnez !"
 
