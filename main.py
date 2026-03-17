@@ -1,173 +1,271 @@
 """
-main.py
-Jeu Roche, Papier, Ciseaux avec Arcade.
-
-Fichier principal qui gère la fenêtre, les états du jeu,
-les entrées clavier/souris et la logique du jeu.
+Eric Su Huang
+Groupe 1234
+Jeu Roche Papier Ciseaux avec interface graphique Arcade.
 """
 
 import arcade
 import random
+from enum import Enum
+from Game_state import GameState
+from Attack_animation import AttackAnimation
+from Attack_animation import AttackType
 
-from game_state import GameState
-from attack_animation import AttackAnimation, AttackType
-
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 600
-SCREEN_TITLE = "Roche, Papier, Ciseaux"
+LARGEUR_ECRAN = 1200
+HAUTEUR_ECRAN = 800
+TITRE_ECRAN = "Roche Papier Ciseaux"
 
 
+# Énumération des choix
+class Choix(Enum):
+    """
+    Énumération des choix possibles dans le jeu Roche Papier Ciseaux.
+    Attributs:
+        ROCHE: Choix "roche" qui bat "ciseaux"
+        PAPIER: Choix "papier" qui bat "roche"
+        CISEAUX: Choix "ciseaux" qui bat "papier"
+    """
+    ROCHE = "roche"
+    PAPIER = "papier"
+    CISEAUX = "ciseaux"
+
+
+# Variables globales de l'état du jeu
+choix_joueur = ""  # Le choix actuel du joueur (roche, papier ou ciseaux)
+choix_ordinateur = ""  # Le choix aléatoire de l'ordinateur
+resultat_jeu = "Choisissez roche, papier ou ciseaux"  # Message affichant le résultat de la dernière manche
+
+
+# Classe principale du jeu
 class MyGame(arcade.Window):
     """
-    Classe principale du jeu.
-    Hérite de arcade.Window.
+    Classe principale gérant la fenêtre et la logique du jeu Roche Papier Ciseaux.
     """
 
-    def __init__(self):
-        """Initialise la fenêtre et les variables du jeu."""
-        super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
-        arcade.set_background_color(arcade.color.ALMOND)
-
+    def __init__(self, width, height, title):
+        """
+        Initialise la fenêtre de jeu.
+        """
+        super().__init__(width, height, title)
+        arcade.set_background_color(arcade.color.SEASHELL)
+        self.victoires_joueur = 0  # Nombre de victoires remportées par le joueur.
+        self.victoires_ordinateur = 0  # Nombre de victoires remportées par l'ordinateur.
         self.game_state = GameState.NOT_STARTED
-
-        self.player_score = 0
-        self.computer_score = 0
-
-        self.player_attack_type = None
-        self.computer_attack_type = None
+        self.joueur_score = 0
+        self.ordinateur_score = 0
+        self.joueur_attack_type = None
+        self.ordinateur_attack_type = None
         self.attack_selected = False
-
-        self.rock = AttackAnimation(AttackType.ROCK)
-        self.paper = AttackAnimation(AttackType.PAPER)
-        self.scissors = AttackAnimation(AttackType.SCISSORS)
-
-        self.rock.center_x = 200
-        self.paper.center_x = 400
-        self.scissors.center_x = 600
-
-        for sprite in [self.rock, self.paper, self.scissors]:
-            sprite.center_y = 200
+        # Sprites pour le joueur et l'ordianteur
+        self.joueur = arcade.Sprite("sprites/IMG_0414.png", scale=0.7)
+        self.ordinateur = arcade.Sprite("sprites/IMG_0413.png", scale=3.4)
+        # Sprites pour les attaques du joueur
+        self.roche = AttackAnimation(AttackType.ROCHE)
+        self.papier = AttackAnimation(AttackType.PAPIER)
+        self.ciseaux = AttackAnimation(AttackType.CISEAUX)
+        # Sprites pour les attaques de l'ordinateur
+        self.roche1 = AttackAnimation(AttackType.ROCHE)
+        self.papier1 = AttackAnimation(AttackType.PAPIER)
+        self.ciseaux1 = AttackAnimation(AttackType.CISEAUX)
+        # Positions
+        self.joueur.position = 300, 500
+        self.ordinateur.position = 900, 500
+        self.roche.position = 200, 200
+        self.papier.position = 300, 200
+        self.ciseaux.position = 400, 200
+        self.roche1.position = 800, 200
+        self.papier1.position = 900, 200
+        self.ciseaux1.position = 1000, 200
+        # Liste de sprites pour le dessiner
+        self.attacks_list = arcade.SpriteList()
+        self.attacks_list.append(self.joueur)
+        self.attacks_list.append(self.ordinateur)
+        self.attacks_list.append(self.roche)
+        self.attacks_list.append(self.papier)
+        self.attacks_list.append(self.ciseaux)
+        self.attacks_list.append(self.roche1)
+        self.attacks_list.append(self.papier1)
+        self.attacks_list.append(self.ciseaux1)
 
     def on_draw(self):
-        """Dessine tous les éléments à l'écran selon l'état du jeu."""
+        """
+        Dessine tous les éléments de l'interface graphique.
+        """
         self.clear()
+        # Dessiner les sprites
+        self.attacks_list.draw()
 
+        # Titre du jeu
         arcade.draw_text(
-            "Roche, Papier, Ciseaux",
-            SCREEN_WIDTH / 2,
-            SCREEN_HEIGHT - 50,
+            "Roche Papier Ciseaux",
+            LARGEUR_ECRAN / 2,
+            HAUTEUR_ECRAN - 50,
             arcade.color.BLACK,
             24,
-            anchor_x="center"
+            anchor_x="center",
         )
 
+        # Affichage des scores
         arcade.draw_text(
-            f"Joueur: {self.player_score}  Ordinateur: {self.computer_score}",
-            SCREEN_WIDTH / 2,
-            SCREEN_HEIGHT - 100,
+            f"Victoires Joueur : {self.victoires_joueur} | Victoires Ordinateur : {self.victoires_ordinateur}",
+            LARGEUR_ECRAN / 2,
+            HAUTEUR_ECRAN - 20,
             arcade.color.BLACK,
-            16,
-            anchor_x="center"
+            14,
+            anchor_x="center",
         )
 
-        self.rock.draw()
-        self.paper.draw()
-        self.scissors.draw()
+        # Affichage du choix du joueur (en bleu)
+        arcade.draw_text(
+            f"Votre choix : {choix_joueur}",
+            LARGEUR_ECRAN / 4,
+            HAUTEUR_ECRAN / 3,
+            arcade.color.BLUE,
+            22,
+            anchor_x="center",
+        )
+
+        # Affichage du choix de l'ordinateur (en rouge)
+        arcade.draw_text(
+            f"Choix de l'ordinateur : {choix_ordinateur}",
+            3 * LARGEUR_ECRAN / 4,
+            HAUTEUR_ECRAN / 3,
+            arcade.color.RED,
+            22,
+            anchor_x="center",
+        )
+
+        # Affichage du résultat de la manche
+        arcade.draw_text(
+            resultat_jeu,
+            LARGEUR_ECRAN / 2,
+            HAUTEUR_ECRAN / 2 - 50,
+            arcade.color.BLACK,
+            18,
+            anchor_x="center",
+        )
 
         if self.game_state == GameState.NOT_STARTED:
             arcade.draw_text(
                 "Appuie sur ESPACE pour commencer",
-                SCREEN_WIDTH / 2,
-                400,
+                LARGEUR_ECRAN / 2,
+                700,
                 arcade.color.BLACK,
-                18,
+                20,
                 anchor_x="center"
             )
 
         elif self.game_state == GameState.ROUND_DONE:
             arcade.draw_text(
                 "Ronde terminée! Appuie sur ESPACE pour continuer",
-                SCREEN_WIDTH / 2,
-                400,
+                LARGEUR_ECRAN / 2,
+                700,
                 arcade.color.BLACK,
-                18,
+                20,
                 anchor_x="center"
             )
 
         elif self.game_state == GameState.GAME_OVER:
             arcade.draw_text(
                 "PARTIE TERMINÉE! Appuie sur ESPACE pour rejouer",
-                SCREEN_WIDTH / 2,
-                400,
+                LARGEUR_ECRAN / 2,
+                700,
                 arcade.color.RED,
-                18,
+                20,
                 anchor_x="center"
             )
 
-    def on_update(self, delta_time):
+    def on_update(self, delta_time: float):
         """Met à jour la logique du jeu et les animations."""
-        self.rock.on_update(delta_time)
-        self.paper.on_update(delta_time)
-        self.scissors.on_update(delta_time)
 
-        if self.game_state == GameState.ROUND_ACTIVE and self.attack_selected:
-            self.computer_attack_type = AttackType(random.randint(0, 2))
-            self.validate_round()
-            self.attack_selected = False
-            self.game_state = GameState.ROUND_DONE
-
-            if self.player_score == 3 or self.computer_score == 3:
-                self.game_state = GameState.GAME_OVER
-
-    def validate_round(self):
-        """Détermine le gagnant de la ronde et met à jour le pointage."""
-        p = self.player_attack_type
-        c = self.computer_attack_type
-
-        if p == c:
-            return
-        elif (
-            (p == AttackType.ROCK and c == AttackType.SCISSORS)
-            or (p == AttackType.PAPER and c == AttackType.ROCK)
-            or (p == AttackType.SCISSORS and c == AttackType.PAPER)
-        ):
-            self.player_score += 1
-        else:
-            self.computer_score += 1
+        self.roche.on_update(delta_time)
+        self.roche1.on_update(delta_time)
+        self.papier.on_update(delta_time)
+        self.papier1.on_update(delta_time)
+        self.ciseaux.on_update(delta_time)
+        self.ciseaux1.on_update(delta_time)
 
     def on_mouse_press(self, x, y, button, modifiers):
         """Gère le choix d'attaque du joueur avec la souris."""
+
+        global choix_joueur, choix_ordinateur, resultat_jeu
+
         if self.game_state != GameState.ROUND_ACTIVE:
             return
 
-        if self.rock.collides_with_point((x, y)):
-            self.player_attack_type = AttackType.ROCK
-            self.attack_selected = True
-        elif self.paper.collides_with_point((x, y)):
-            self.player_attack_type = AttackType.PAPER
-            self.attack_selected = True
-        elif self.scissors.collides_with_point((x, y)):
-            self.player_attack_type = AttackType.SCISSORS
-            self.attack_selected = True
+        if self.roche.collides_with_point((x, y)):
+            choix_joueur = "roche"
+        elif self.papier.collides_with_point((x, y)):
+            choix_joueur = "papier"
+        elif self.ciseaux.collides_with_point((x, y)):
+            choix_joueur = "ciseaux"
+        else:
+            return
+
+        # Sélection aléatoire du choix de l'ordinateur parmi l'énumération
+        choix_ordinateur = random.choice([c.value for c in Choix])
+
+        # Détermination et affichage du résultat
+        resultat_jeu = self.determiner_gagnant(choix_joueur, choix_ordinateur)
+
+        # Manche terminée
+        if self.victoires_joueur >= 3 or self.victoires_ordinateur >= 3:
+            self.game_state = GameState.GAME_OVER
+        else:
+            self.game_state = GameState.ROUND_DONE
 
     def on_key_press(self, key, modifiers):
         """Gère les transitions d'état avec le clavier."""
+        global choix_joueur, choix_ordinateur, resultat_jeu
+
         if key == arcade.key.SPACE:
+
             if self.game_state == GameState.NOT_STARTED:
                 self.game_state = GameState.ROUND_ACTIVE
+
             elif self.game_state == GameState.ROUND_DONE:
                 self.game_state = GameState.ROUND_ACTIVE
+
             elif self.game_state == GameState.GAME_OVER:
-                self.player_score = 0
-                self.computer_score = 0
+                # réinitialiser les valeurs et recommencer une nouvelle partie
+                self.victoires_joueur = 0
+                self.victoires_ordinateur = 0
+                choix_joueur = ""
+                choix_ordinateur = ""
+                resultat_jeu = ""
                 self.game_state = GameState.ROUND_ACTIVE
+
+    def determiner_gagnant(self, joueur, ordinateur):
+        """
+        Détermine le gagnant de la manche et met à jour les scores.
+        """
+
+        # Cas d'égalité
+        if joueur == ordinateur:
+            return "Égalité !"
+
+        # Cas où le joueur gagne
+        elif (joueur == "roche" and ordinateur == "ciseaux") or \
+                (joueur == "papier" and ordinateur == "roche") or \
+                (joueur == "ciseaux" and ordinateur == "papier"):
+
+            self.victoires_joueur += 1
+            return f"{joueur.capitalize()} bat {ordinateur} ! Vous gagnez !"
+
+        # Cas où l'ordinateur gagne
+        else:
+            self.victoires_ordinateur += 1
+            return f"{ordinateur.capitalize()} bat {joueur} ! Vous perdez."
 
 
 def main():
-    """Point d'entrée du programme."""
-    game = MyGame()
+    """
+    Fonction principale qui initialise et lance le jeu.
+    """
+    MyGame(LARGEUR_ECRAN, HAUTEUR_ECRAN, TITRE_ECRAN)
     arcade.run()
 
 
+# Point d'entrée du programme
 if __name__ == "__main__":
     main()
