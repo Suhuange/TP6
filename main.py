@@ -15,7 +15,6 @@ LARGEUR_ECRAN = 1200
 HAUTEUR_ECRAN = 800
 TITRE_ECRAN = "Roche Papier Ciseaux"
 
-
 # Énumération des choix
 class Choix(Enum):
     """
