@@ -11,9 +11,16 @@ from Game_state import GameState
 from Attack_animation import AttackAnimation
 from Attack_animation import AttackType
 
+# Les dimensions du jeu et le titre
 LARGEUR_ECRAN = 1200
 HAUTEUR_ECRAN = 800
 TITRE_ECRAN = "Roche Papier Ciseaux"
+
+# Variables globales de l'état du jeu
+choix_joueur = ""  # Le choix actuel du joueur (roche, papier ou ciseaux)
+choix_ordinateur = ""  # Le choix aléatoire de l'ordinateur
+resultat_jeu = "Choisissez roche, papier ou ciseaux"  # Message affichant le résultat de la dernière manche
+
 
 # Énumération des choix
 class Choix(Enum):
@@ -27,12 +34,6 @@ class Choix(Enum):
     ROCHE = "roche"
     PAPIER = "papier"
     CISEAUX = "ciseaux"
-
-
-# Variables globales de l'état du jeu
-choix_joueur = ""  # Le choix actuel du joueur (roche, papier ou ciseaux)
-choix_ordinateur = ""  # Le choix aléatoire de l'ordinateur
-resultat_jeu = "Choisissez roche, papier ou ciseaux"  # Message affichant le résultat de la dernière manche
 
 
 # Classe principale du jeu
@@ -49,50 +50,87 @@ class MyGame(arcade.Window):
         arcade.set_background_color(arcade.color.SEASHELL)
         self.victoires_joueur = 0  # Nombre de victoires remportées par le joueur.
         self.victoires_ordinateur = 0  # Nombre de victoires remportées par l'ordinateur.
-        self.game_state = GameState.NOT_STARTED
-        self.joueur_score = 0
-        self.ordinateur_score = 0
-        self.joueur_attack_type = None
-        self.ordinateur_attack_type = None
+        self.game_state = GameState.NOT_STARTED  # État initiale
+        self.joueur_attaque_type = None
+        self.ordinateur_attaque_type = None
         self.attack_selected = False
+
         # Sprites pour le joueur et l'ordianteur
         self.joueur = arcade.Sprite("sprites/IMG_0414.png", scale=0.7)
         self.ordinateur = arcade.Sprite("sprites/IMG_0413.png", scale=3.4)
+
         # Sprites pour les attaques du joueur
         self.roche = AttackAnimation(AttackType.ROCHE)
         self.papier = AttackAnimation(AttackType.PAPIER)
         self.ciseaux = AttackAnimation(AttackType.CISEAUX)
+
         # Sprites pour les attaques de l'ordinateur
         self.roche1 = AttackAnimation(AttackType.ROCHE)
         self.papier1 = AttackAnimation(AttackType.PAPIER)
         self.ciseaux1 = AttackAnimation(AttackType.CISEAUX)
-        # Positions
+
+        # Positions des Sprites
         self.joueur.position = 300, 500
         self.ordinateur.position = 900, 500
         self.roche.position = 200, 200
         self.papier.position = 300, 200
         self.ciseaux.position = 400, 200
-        self.roche1.position = 800, 200
+        self.roche1.position = 900, 200
         self.papier1.position = 900, 200
-        self.ciseaux1.position = 1000, 200
+        self.ciseaux1.position = 900, 200
+
         # Liste de sprites pour le dessiner
-        self.attacks_list = arcade.SpriteList()
-        self.attacks_list.append(self.joueur)
-        self.attacks_list.append(self.ordinateur)
-        self.attacks_list.append(self.roche)
-        self.attacks_list.append(self.papier)
-        self.attacks_list.append(self.ciseaux)
-        self.attacks_list.append(self.roche1)
-        self.attacks_list.append(self.papier1)
-        self.attacks_list.append(self.ciseaux1)
+        self.Sprites = arcade.SpriteList()
+        self.Sprites.append(self.joueur)
+        self.Sprites.append(self.ordinateur)
+
+        self.attaque_roche = arcade.SpriteList()
+        self.attaque_roche.append(self.roche)
+
+        self.attaque_papier = arcade.SpriteList()
+        self.attaque_papier.append(self.papier)
+
+        self.attaque_ciseaux = arcade.SpriteList()
+        self.attaque_ciseaux.append(self.ciseaux)
+
+        self.attaque_roche1 = arcade.SpriteList()
+        self.attaque_roche1.append(self.roche1)
+
+        self.attaque_papier1 = arcade.SpriteList()
+        self.attaque_papier1.append(self.papier1)
+
+        self.attaque_ciseaux1 = arcade.SpriteList()
+        self.attaque_ciseaux1.append(self.ciseaux1)
 
     def on_draw(self):
         """
         Dessine tous les éléments de l'interface graphique.
         """
         self.clear()
+
         # Dessiner les sprites
-        self.attacks_list.draw()
+        self.Sprites.draw()
+
+        # Montrer seulement le Sprite que le joueur a choisi
+        if choix_joueur == "roche":
+            self.attaque_roche.draw()
+        elif choix_joueur == "papier":
+            self.attaque_papier.draw()
+        elif choix_joueur == "ciseaux":
+            self.attaque_ciseaux.draw()
+        else:
+            pass
+
+        # Montrer seulement le Sprite que l'ordinateur a choisi
+        if choix_ordinateur == "roche":
+            self.attaque_roche1.draw()
+        elif choix_ordinateur == "papier":
+            self.attaque_papier1.draw()
+        elif choix_ordinateur == "ciseaux":
+            self.attaque_ciseaux1.draw()
+        else:
+            pass
+
 
         # Titre du jeu
         arcade.draw_text(
@@ -101,16 +139,6 @@ class MyGame(arcade.Window):
             HAUTEUR_ECRAN - 50,
             arcade.color.BLACK,
             24,
-            anchor_x="center",
-        )
-
-        # Affichage des scores
-        arcade.draw_text(
-            f"Victoires Joueur : {self.victoires_joueur} | Victoires Ordinateur : {self.victoires_ordinateur}",
-            LARGEUR_ECRAN / 2,
-            HAUTEUR_ECRAN - 20,
-            arcade.color.BLACK,
-            14,
             anchor_x="center",
         )
 
@@ -134,16 +162,7 @@ class MyGame(arcade.Window):
             anchor_x="center",
         )
 
-        # Affichage du résultat de la manche
-        arcade.draw_text(
-            resultat_jeu,
-            LARGEUR_ECRAN / 2,
-            HAUTEUR_ECRAN / 2 - 50,
-            arcade.color.BLACK,
-            18,
-            anchor_x="center",
-        )
-
+        # Affichage du texte pour changer d'état
         if self.game_state == GameState.NOT_STARTED:
             arcade.draw_text(
                 "Appuie sur ESPACE pour commencer",
@@ -154,7 +173,57 @@ class MyGame(arcade.Window):
                 anchor_x="center"
             )
 
+        elif self.game_state == GameState.ROUND_ACTIVE:
+
+            # Décoration pour les mains
+            arcade.draw_lrbt_rectangle_outline(161, 239, 161, 239, arcade.color.DARK_GREEN)
+            arcade.draw_lrbt_rectangle_outline(261, 339, 161, 239, arcade.color.DARK_GREEN)
+            arcade.draw_lrbt_rectangle_outline(361, 439, 161, 239, arcade.color.DARK_GREEN)
+            arcade.draw_lrbt_rectangle_outline(861, 939, 161, 239, arcade.color.DARK_GREEN)
+
+            # Affichage des Sprites des attaques (roche, papier et ciseaux)
+            self.attaque_roche.draw()
+            self.attaque_papier.draw()
+            self.attaque_ciseaux.draw()
+
+            # Affichage des scores
+            arcade.draw_text(
+                f"Victoires Joueur : {self.victoires_joueur} | Victoires Ordinateur : {self.victoires_ordinateur}",
+                LARGEUR_ECRAN / 2,
+                HAUTEUR_ECRAN - 20,
+                arcade.color.BLACK,
+                14,
+                anchor_x="center",
+            )
+
+            arcade.draw_text(
+                f"Appuyer sur une image pour faire une attaque!",
+                LARGEUR_ECRAN / 2,
+                HAUTEUR_ECRAN - 90,
+                arcade.color.BLACK,
+                20,
+                anchor_x="center",
+            )
+
         elif self.game_state == GameState.ROUND_DONE:
+
+            # Décoration pour les mains
+            arcade.draw_lrbt_rectangle_outline(161, 239, 161, 239, arcade.color.DARK_GREEN)
+            arcade.draw_lrbt_rectangle_outline(261, 339, 161, 239, arcade.color.DARK_GREEN)
+            arcade.draw_lrbt_rectangle_outline(361, 439, 161, 239, arcade.color.DARK_GREEN)
+            arcade.draw_lrbt_rectangle_outline(861, 939, 161, 239, arcade.color.DARK_GREEN)
+
+            # Affichage du résultat de la manche
+            arcade.draw_text(
+                resultat_jeu,
+                LARGEUR_ECRAN / 2,
+                HAUTEUR_ECRAN / 2 - 50,
+                arcade.color.BLACK,
+                18,
+                anchor_x="center",
+            )
+
+            # Affichage du texte pour changer d'état
             arcade.draw_text(
                 "Ronde terminée! Appuie sur ESPACE pour continuer",
                 LARGEUR_ECRAN / 2,
@@ -164,15 +233,63 @@ class MyGame(arcade.Window):
                 anchor_x="center"
             )
 
-        elif self.game_state == GameState.GAME_OVER:
+            # Affichage des scores
+            arcade.draw_text(
+                f"Victoires Joueur : {self.victoires_joueur} | Victoires Ordinateur : {self.victoires_ordinateur}",
+                LARGEUR_ECRAN / 2,
+                HAUTEUR_ECRAN - 20,
+                arcade.color.BLACK,
+                14,
+                anchor_x="center",
+            )
+
+        else:
+
+            # Décoration pour les mains
+            arcade.draw_lrbt_rectangle_outline(161, 239, 161, 239, arcade.color.DARK_GREEN)
+            arcade.draw_lrbt_rectangle_outline(261, 339, 161, 239, arcade.color.DARK_GREEN)
+            arcade.draw_lrbt_rectangle_outline(361, 439, 161, 239, arcade.color.DARK_GREEN)
+            arcade.draw_lrbt_rectangle_outline(861, 939, 161, 239, arcade.color.DARK_GREEN)
+
+            # Affichage des scores
+            arcade.draw_text(
+                f"Victoires Joueur : {self.victoires_joueur} | Victoires Ordinateur : {self.victoires_ordinateur}",
+                LARGEUR_ECRAN / 2,
+                HAUTEUR_ECRAN - 20,
+                arcade.color.BLACK,
+                14,
+                anchor_x="center",
+            )
+
+            # Affichage du texte pour changer d'état
             arcade.draw_text(
                 "PARTIE TERMINÉE! Appuie sur ESPACE pour rejouer",
                 LARGEUR_ECRAN / 2,
                 700,
-                arcade.color.RED,
+                arcade.color.BLACK,
                 20,
                 anchor_x="center"
             )
+
+            if self.victoires_joueur == 3:
+                arcade.draw_text(
+                    "Vous êtes le gagnant!",
+                    LARGEUR_ECRAN / 2,
+                    650,
+                    arcade.color.BLUE,
+                    30,
+                    anchor_x="center"
+                )
+
+            else:
+                arcade.draw_text(
+                    "Vous êtes le perdant!",
+                    LARGEUR_ECRAN / 2,
+                    650,
+                    arcade.color.RED,
+                    30,
+                    anchor_x="center"
+                )
 
     def on_update(self, delta_time: float):
         """Met à jour la logique du jeu et les animations."""
@@ -226,13 +343,14 @@ class MyGame(arcade.Window):
                 self.game_state = GameState.ROUND_ACTIVE
 
             elif self.game_state == GameState.GAME_OVER:
+                self.game_state = GameState.ROUND_ACTIVE
+
                 # réinitialiser les valeurs et recommencer une nouvelle partie
                 self.victoires_joueur = 0
                 self.victoires_ordinateur = 0
                 choix_joueur = ""
                 choix_ordinateur = ""
                 resultat_jeu = ""
-                self.game_state = GameState.ROUND_ACTIVE
 
     def determiner_gagnant(self, joueur, ordinateur):
         """
