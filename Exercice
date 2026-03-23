@@ -2,7 +2,7 @@
 Eric Su Huang
 Groupe 1234
 Jeu Roche Papier Ciseaux avec interface graphique Arcade.
-Version améliorée (structure, lisibilité et organisation).
+Version finale corrigée et optimisée.
 """
 
 import arcade
@@ -21,20 +21,17 @@ ORDI_POS = (900, 500)
 
 
 class Choix(Enum):
-    """Énumération des choix possibles."""
     ROCHE = "roche"
     PAPIER = "papier"
     CISEAUX = "ciseaux"
 
 
 class JeuRPC(arcade.Window):
-    """Classe principale du jeu."""
-
     def __init__(self):
         super().__init__(LARGEUR_ECRAN, HAUTEUR_ECRAN, TITRE_ECRAN)
         arcade.set_background_color(arcade.color.SEASHELL)
 
-        # États du jeu
+        # État du jeu
         self.etat_jeu = GameState.NOT_STARTED
 
         # Scores
@@ -44,29 +41,45 @@ class JeuRPC(arcade.Window):
         # Choix
         self.choix_joueur = ""
         self.choix_ordi = ""
-        self.resultat = "Choisissez roche, papier ou ciseaux"
+        self.resultat = "Choisissez une attaque"
 
-        # Sprites joueurs
+        # Sprites personnages
         self.joueur = arcade.Sprite("sprites/IMG_0414.png", scale=0.7)
         self.ordi = arcade.Sprite("sprites/IMG_0413.png", scale=3.4)
 
         self.joueur.position = JOUEUR_POS
         self.ordi.position = ORDI_POS
 
-        # Attaques (dictionnaire)
+        # Liste principale
+        self.sprites = arcade.SpriteList()
+        self.sprites.append(self.joueur)
+        self.sprites.append(self.ordi)
+
+        # Attaques joueur
         self.attaques = {
             "roche": AttackAnimation(AttackType.ROCHE),
             "papier": AttackAnimation(AttackType.PAPIER),
             "ciseaux": AttackAnimation(AttackType.CISEAUX)
         }
 
+        # Attaques ordinateur
         self.attaques_ordi = {
             "roche": AttackAnimation(AttackType.ROCHE),
             "papier": AttackAnimation(AttackType.PAPIER),
             "ciseaux": AttackAnimation(AttackType.CISEAUX)
         }
 
-        # Positionnement
+        # SpriteLists (IMPORTANT)
+        self.liste_attaques = arcade.SpriteList()
+        self.liste_attaques_ordi = arcade.SpriteList()
+
+        for attaque in self.attaques.values():
+            self.liste_attaques.append(attaque)
+
+        for attaque in self.attaques_ordi.values():
+            self.liste_attaques_ordi.append(attaque)
+
+        # Positions des attaques
         positions = [(200, 200), (300, 200), (400, 200)]
         for attaque, pos in zip(self.attaques.values(), positions):
             attaque.position = pos
@@ -74,22 +87,19 @@ class JeuRPC(arcade.Window):
         for attaque in self.attaques_ordi.values():
             attaque.position = (900, 200)
 
-        # Liste principale
-        self.sprites = arcade.SpriteList()
-        self.sprites.append(self.joueur)
-        self.sprites.append(self.ordi)
-
     # -------------------------
     # AFFICHAGE
     # -------------------------
     def on_draw(self):
         self.clear()
+
         self.sprites.draw()
 
-        # Afficher attaques sélectionnées
+        # Attaque sélectionnée joueur
         if self.choix_joueur in self.attaques:
             self.attaques[self.choix_joueur].draw()
 
+        # Attaque sélectionnée ordinateur
         if self.choix_ordi in self.attaques_ordi:
             self.attaques_ordi[self.choix_ordi].draw()
 
@@ -104,8 +114,8 @@ class JeuRPC(arcade.Window):
             self.afficher_scores()
             self.afficher_message("Clique sur une attaque")
 
-            for attaque in self.attaques.values():
-                attaque.draw()
+            # Afficher toutes les attaques disponibles
+            self.liste_attaques.draw()
 
         elif self.etat_jeu == GameState.ROUND_DONE:
             self.dessiner_cases()
@@ -210,10 +220,8 @@ class JeuRPC(arcade.Window):
     # LOGIQUE
     # -------------------------
     def on_update(self, delta_time):
-        for attaque in self.attaques.values():
-            attaque.on_update(delta_time)
-        for attaque in self.attaques_ordi.values():
-            attaque.on_update(delta_time)
+        self.liste_attaques.update()
+        self.liste_attaques_ordi.update()
 
     def on_mouse_press(self, x, y, button, modifiers):
         if self.etat_jeu != GameState.ROUND_ACTIVE:
@@ -248,12 +256,11 @@ class JeuRPC(arcade.Window):
                 self.etat_jeu = GameState.ROUND_ACTIVE
 
     def reset_jeu(self):
-        """Réinitialise complètement la partie."""
         self.victoires_joueur = 0
         self.victoires_ordi = 0
         self.choix_joueur = ""
         self.choix_ordi = ""
-        self.resultat = ""
+        self.resultat = "Choisissez une attaque"
 
     def determiner_gagnant(self):
         if self.choix_joueur == self.choix_ordi:
@@ -272,7 +279,7 @@ class JeuRPC(arcade.Window):
 
 
 def main():
-    jeu = JeuRPC()
+    JeuRPC()
     arcade.run()
 
 
