@@ -11,7 +11,7 @@ from Game_state import GameState
 from Attack_animation import AttackAnimation
 from Attack_animation import AttackType
 
-# Les dimensions du jeu et le titre
+# Constantes
 LARGEUR_ECRAN = 1200
 HAUTEUR_ECRAN = 800
 TITRE_ECRAN = "Roche Papier Ciseaux"
@@ -36,6 +36,13 @@ class Choix(Enum):
     CISEAUX = "ciseaux"
 
 
+# Décoration pour les mains
+def cases():
+    coords = [(161, 239), (261, 339), (361, 439), (861, 939)]
+    for left, right in coords:
+        arcade.draw_lrbt_rectangle_outline(left, right, 161, 239, arcade.color.DARK_GREEN)
+
+
 # Classe principale du jeu
 class MyGame(arcade.Window):
     """
@@ -43,14 +50,15 @@ class MyGame(arcade.Window):
     """
 
     def __init__(self, width, height, title):
-        """
-        Initialise la fenêtre de jeu.
-        """
         super().__init__(width, height, title)
         arcade.set_background_color(arcade.color.SEASHELL)
+
+        # Scores
         self.victoires_joueur = 0  # Nombre de victoires remportées par le joueur.
-        self.victoires_ordinateur = 0  # Nombre de victoires remportées par l'ordinateur.
-        self.game_state = GameState.NOT_STARTED  # État initiale
+        self.victoires_ordinateur = 0
+
+        # État initiale
+        self.game_state = GameState.NOT_STARTED
         self.joueur_attaque_type = None
         self.ordinateur_attaque_type = None
         self.attack_selected = False
@@ -111,6 +119,8 @@ class MyGame(arcade.Window):
         # Dessiner les sprites
         self.Sprites.draw()
 
+        # Décoration pour les mains
+
         # Montrer seulement le Sprite que le joueur a choisi
         if choix_joueur == "roche":
             self.attaque_roche.draw()
@@ -130,7 +140,6 @@ class MyGame(arcade.Window):
             self.attaque_ciseaux1.draw()
         else:
             pass
-
 
         # Titre du jeu
         arcade.draw_text(
@@ -175,17 +184,11 @@ class MyGame(arcade.Window):
 
         elif self.game_state == GameState.ROUND_ACTIVE:
 
-            # Décoration pour les mains
-            arcade.draw_lrbt_rectangle_outline(161, 239, 161, 239, arcade.color.DARK_GREEN)
-            arcade.draw_lrbt_rectangle_outline(261, 339, 161, 239, arcade.color.DARK_GREEN)
-            arcade.draw_lrbt_rectangle_outline(361, 439, 161, 239, arcade.color.DARK_GREEN)
-            arcade.draw_lrbt_rectangle_outline(861, 939, 161, 239, arcade.color.DARK_GREEN)
-
             # Affichage des Sprites des attaques (roche, papier et ciseaux)
             self.attaque_roche.draw()
             self.attaque_papier.draw()
             self.attaque_ciseaux.draw()
-
+            cases()
             # Affichage des scores
             arcade.draw_text(
                 f"Victoires Joueur : {self.victoires_joueur} | Victoires Ordinateur : {self.victoires_ordinateur}",
