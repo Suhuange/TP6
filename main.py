@@ -8,8 +8,7 @@ import arcade
 import random
 from enum import Enum
 from Game_state import GameState
-from Attack_animation import AttackAnimation
-from Attack_animation import AttackType
+from Attack_animation import AttackAnimation, AttackType
 
 # Constantes
 LARGEUR_ECRAN = 1200
@@ -36,14 +35,68 @@ class Choix(Enum):
     CISEAUX = "ciseaux"
 
 
-# Décoration pour les mains
-def cases():
-    coords = [(161, 239), (261, 339), (361, 439), (861, 939)]
-    for left, right in coords:
-        arcade.draw_lrbt_rectangle_outline(left, right, 161, 239, arcade.color.DARK_GREEN)
-
-
 # Classe principale du jeu
+def afficher_titre():
+    arcade.draw_text(
+        TITRE_ECRAN,
+        LARGEUR_ECRAN / 2,
+        HAUTEUR_ECRAN - 50,
+        arcade.color.BLACK,
+        24,
+        anchor_x="center",
+    )
+
+
+def afficher_choix():
+    arcade.draw_text(
+        f"Votre choix : {choix_joueur}",
+        LARGEUR_ECRAN / 4,
+        HAUTEUR_ECRAN / 3,
+        arcade.color.BLUE,
+        22,
+        anchor_x="center",
+    )
+
+    arcade.draw_text(
+        f"Choix de l'ordinateur : {choix_ordinateur}",
+        3 * LARGEUR_ECRAN / 4,
+        HAUTEUR_ECRAN / 3,
+        arcade.color.RED,
+        22,
+        anchor_x="center",
+    )
+
+
+def afficher_message(texte):
+    arcade.draw_text(
+        texte,
+        LARGEUR_ECRAN / 2,
+        700,
+        arcade.color.BLACK,
+        20,
+        anchor_x="center"
+    )
+
+
+def afficher_resultat():
+    arcade.draw_text(
+        resultat_jeu,
+        LARGEUR_ECRAN / 2,
+        HAUTEUR_ECRAN / 2 - 50,
+        arcade.color.BLACK,
+        18,
+        anchor_x="center",
+    )
+
+
+def dessiner_cases():
+    cases = [(161, 239), (261, 339), (361, 439), (861, 939)]
+    for gauche, droite in cases:
+        arcade.draw_lrbt_rectangle_outline(
+            gauche, droite, 161, 239, arcade.color.DARK_GREEN
+        )
+
+
 class MyGame(arcade.Window):
     """
     Classe principale gérant la fenêtre et la logique du jeu Roche Papier Ciseaux.
@@ -114,12 +167,9 @@ class MyGame(arcade.Window):
         """
         Dessine tous les éléments de l'interface graphique.
         """
-        self.clear()
-
         # Dessiner les sprites
+        self.clear()
         self.Sprites.draw()
-
-        # Décoration pour les mains
 
         # Montrer seulement le Sprite que le joueur a choisi
         if choix_joueur == "roche":
@@ -142,157 +192,65 @@ class MyGame(arcade.Window):
             pass
 
         # Titre du jeu
-        arcade.draw_text(
-            "Roche Papier Ciseaux",
-            LARGEUR_ECRAN / 2,
-            HAUTEUR_ECRAN - 50,
-            arcade.color.BLACK,
-            24,
-            anchor_x="center",
-        )
+        afficher_titre()
 
-        # Affichage du choix du joueur (en bleu)
-        arcade.draw_text(
-            f"Votre choix : {choix_joueur}",
-            LARGEUR_ECRAN / 4,
-            HAUTEUR_ECRAN / 3,
-            arcade.color.BLUE,
-            22,
-            anchor_x="center",
-        )
-
-        # Affichage du choix de l'ordinateur (en rouge)
-        arcade.draw_text(
-            f"Choix de l'ordinateur : {choix_ordinateur}",
-            3 * LARGEUR_ECRAN / 4,
-            HAUTEUR_ECRAN / 3,
-            arcade.color.RED,
-            22,
-            anchor_x="center",
-        )
+        # Affichage du choix du joueur et de l'ordinateur
+        afficher_choix()
 
         # Affichage du texte pour changer d'état
         if self.game_state == GameState.NOT_STARTED:
-            arcade.draw_text(
-                "Appuie sur ESPACE pour commencer",
-                LARGEUR_ECRAN / 2,
-                700,
-                arcade.color.BLACK,
-                20,
-                anchor_x="center"
-            )
+            afficher_message("Appuie sur ESPACE pour commencer")
 
         elif self.game_state == GameState.ROUND_ACTIVE:
+            dessiner_cases()
+            self.afficher_scores()
+            afficher_message("Appuyer sur une image pour faire une attaque!")
 
             # Affichage des Sprites des attaques (roche, papier et ciseaux)
             self.attaque_roche.draw()
             self.attaque_papier.draw()
             self.attaque_ciseaux.draw()
-            cases()
-            # Affichage des scores
-            arcade.draw_text(
-                f"Victoires Joueur : {self.victoires_joueur} | Victoires Ordinateur : {self.victoires_ordinateur}",
-                LARGEUR_ECRAN / 2,
-                HAUTEUR_ECRAN - 20,
-                arcade.color.BLACK,
-                14,
-                anchor_x="center",
-            )
-
-            arcade.draw_text(
-                f"Appuyer sur une image pour faire une attaque!",
-                LARGEUR_ECRAN / 2,
-                HAUTEUR_ECRAN - 90,
-                arcade.color.BLACK,
-                20,
-                anchor_x="center",
-            )
 
         elif self.game_state == GameState.ROUND_DONE:
+            dessiner_cases()
+            self.afficher_scores()
+            afficher_resultat()
+            afficher_message("Appuie sur ESPACE pour continuer")
 
-            # Décoration pour les mains
-            arcade.draw_lrbt_rectangle_outline(161, 239, 161, 239, arcade.color.DARK_GREEN)
-            arcade.draw_lrbt_rectangle_outline(261, 339, 161, 239, arcade.color.DARK_GREEN)
-            arcade.draw_lrbt_rectangle_outline(361, 439, 161, 239, arcade.color.DARK_GREEN)
-            arcade.draw_lrbt_rectangle_outline(861, 939, 161, 239, arcade.color.DARK_GREEN)
+        elif self.game_state == GameState.GAME_OVER:
+            dessiner_cases()
+            self.afficher_scores()
+            afficher_resultat()
+            self.afficher_fin()
 
-            # Affichage du résultat de la manche
-            arcade.draw_text(
-                resultat_jeu,
-                LARGEUR_ECRAN / 2,
-                HAUTEUR_ECRAN / 2 - 50,
-                arcade.color.BLACK,
-                18,
-                anchor_x="center",
-            )
+    def afficher_scores(self):
+        arcade.draw_text(
+            f"Joueur : {self.victoires_joueur} | Ordi : {self.victoires_ordinateur}",
+            LARGEUR_ECRAN / 2,
+            HAUTEUR_ECRAN - 20,
+            arcade.color.BLACK,
+            14,
+            anchor_x="center",
+        )
 
-            # Affichage du texte pour changer d'état
-            arcade.draw_text(
-                "Ronde terminée! Appuie sur ESPACE pour continuer",
-                LARGEUR_ECRAN / 2,
-                700,
-                arcade.color.BLACK,
-                20,
-                anchor_x="center"
-            )
+    def afficher_fin(self):
+        afficher_message("PARTIE TERMINÉE! ESPACE pour rejouer")
 
-            # Affichage des scores
-            arcade.draw_text(
-                f"Victoires Joueur : {self.victoires_joueur} | Victoires Ordinateur : {self.victoires_ordinateur}",
-                LARGEUR_ECRAN / 2,
-                HAUTEUR_ECRAN - 20,
-                arcade.color.BLACK,
-                14,
-                anchor_x="center",
-            )
-
+        if self.victoires_joueur == 3:
+            texte = "Vous avez gagné!"
+            couleur = arcade.color.BLUE
         else:
+            texte = "Vous avez perdu!"
+            couleur = arcade.color.RED
 
-            # Décoration pour les mains
-            arcade.draw_lrbt_rectangle_outline(161, 239, 161, 239, arcade.color.DARK_GREEN)
-            arcade.draw_lrbt_rectangle_outline(261, 339, 161, 239, arcade.color.DARK_GREEN)
-            arcade.draw_lrbt_rectangle_outline(361, 439, 161, 239, arcade.color.DARK_GREEN)
-            arcade.draw_lrbt_rectangle_outline(861, 939, 161, 239, arcade.color.DARK_GREEN)
-
-            # Affichage des scores
-            arcade.draw_text(
-                f"Victoires Joueur : {self.victoires_joueur} | Victoires Ordinateur : {self.victoires_ordinateur}",
-                LARGEUR_ECRAN / 2,
-                HAUTEUR_ECRAN - 20,
-                arcade.color.BLACK,
-                14,
-                anchor_x="center",
-            )
-
-            # Affichage du texte pour changer d'état
-            arcade.draw_text(
-                "PARTIE TERMINÉE! Appuie sur ESPACE pour rejouer",
-                LARGEUR_ECRAN / 2,
-                700,
-                arcade.color.BLACK,
-                20,
-                anchor_x="center"
-            )
-
-            if self.victoires_joueur == 3:
-                arcade.draw_text(
-                    "Vous êtes le gagnant!",
-                    LARGEUR_ECRAN / 2,
-                    650,
-                    arcade.color.BLUE,
-                    30,
-                    anchor_x="center"
-                )
-
-            else:
-                arcade.draw_text(
-                    "Vous êtes le perdant!",
-                    LARGEUR_ECRAN / 2,
-                    650,
-                    arcade.color.RED,
-                    30,
-                    anchor_x="center"
-                )
+        arcade.draw_text(
+            texte,
+            LARGEUR_ECRAN / 2,
+            650,
+            couleur,
+            30,
+            anchor_x="center"
+        )
 
     def on_update(self, delta_time: float):
         """Met à jour la logique du jeu et les animations."""
@@ -339,6 +297,7 @@ class MyGame(arcade.Window):
 
         if key == arcade.key.SPACE:
 
+            #  Changement d'états
             if self.game_state == GameState.NOT_STARTED:
                 self.game_state = GameState.ROUND_ACTIVE
 
