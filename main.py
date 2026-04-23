@@ -1,4 +1,3 @@
-```python
 """
 Eric Su Huang
 Groupe 1234
@@ -37,13 +36,13 @@ class MyGame(arcade.Window):
         # État du jeu
         self.game_state = GameState.NOT_STARTED
 
-        # Variables du jeu (anciennement globales)
+        # Variables du jeu
         self.choix_joueur = ""
         self.choix_ordinateur = ""
         self.resultat_jeu = "Choisissez roche, papier ou ciseaux"
         self.round_processed = False
 
-        # Sprites (NE PAS MODIFIER)
+        # Sprites
         self.joueur = arcade.Sprite("sprites/IMG_0414.png", scale=0.7)
         self.ordinateur = arcade.Sprite("sprites/IMG_0413.png", scale=3.4)
 
@@ -88,7 +87,6 @@ class MyGame(arcade.Window):
         self.attaque_ciseaux1 = arcade.SpriteList()
         self.attaque_ciseaux1.append(self.ciseaux1)
 
-    # ---------- MÉTHODES D’AFFICHAGE ----------
     def afficher_titre(self):
         arcade.draw_text(TITRE_ECRAN, LARGEUR_ECRAN / 2, HAUTEUR_ECRAN - 50,
                          arcade.color.BLACK, 24, anchor_x="center")
@@ -138,7 +136,7 @@ class MyGame(arcade.Window):
         arcade.draw_text(texte, LARGEUR_ECRAN / 2, 650,
                          couleur, 30, anchor_x="center")
 
-    # ---------- DRAW ----------
+    # Fonction affichage
     def on_draw(self):
         self.clear()
         self.Sprites.draw()
@@ -151,7 +149,7 @@ class MyGame(arcade.Window):
         elif self.choix_joueur == "ciseaux":
             self.attaque_ciseaux.draw()
 
-        # Ordi
+        # Ordinateur
         if self.choix_ordinateur == "roche":
             self.attaque_roche1.draw()
         elif self.choix_ordinateur == "papier":
@@ -186,7 +184,7 @@ class MyGame(arcade.Window):
             self.afficher_resultat()
             self.afficher_fin()
 
-    # ---------- UPDATE ----------
+    # fonction update
     def on_update(self, delta_time: float):
 
         # Animations
@@ -197,7 +195,7 @@ class MyGame(arcade.Window):
         self.ciseaux.on_update(delta_time)
         self.ciseaux1.on_update(delta_time)
 
-        # LOGIQUE DU JEU (déplacée ici)
+        # Logique du jeu
         if self.game_state == GameState.ROUND_ACTIVE \
            and self.choix_joueur != "" \
            and not self.round_processed:
@@ -214,7 +212,7 @@ class MyGame(arcade.Window):
 
             self.round_processed = True
 
-    # ---------- INPUT ----------
+    # Fonction input
     def on_mouse_press(self, x, y, button, modifiers):
 
         if self.game_state != GameState.ROUND_ACTIVE:
@@ -226,8 +224,6 @@ class MyGame(arcade.Window):
             self.choix_joueur = "papier"
         elif self.ciseaux.collides_with_point((x, y)):
             self.choix_joueur = "ciseaux"
-        else:
-            return
 
         self.round_processed = False
 
@@ -254,7 +250,7 @@ class MyGame(arcade.Window):
                 self.resultat_jeu = ""
                 self.round_processed = False
 
-    # ---------- LOGIQUE ----------
+    # Fonction logique
     def determiner_gagnant(self, joueur, ordinateur):
 
         if joueur == ordinateur:
@@ -279,4 +275,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-```
